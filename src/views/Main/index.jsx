@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
 import Plato from '../../components/Plato';
 
-const Home = () => {
+const Main = () => {
     const [promedioHealth, setPromedioHealth] = useState(0);
     const [precioTotalMenu, setPrecioTotalMenu] = useState(0);
     const [menu, setMenu] = useState([]);
@@ -51,4 +52,4 @@ const styles = StyleSheet.create({
     },
   });
 
-export default Home;
+export default Main;
