@@ -1,55 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, Button } from 'react-native';
 import Plato from '../../components/Plato';
 
-const Main = () => {
-    const [promedioHealth, setPromedioHealth] = useState(0);
-    const [precioTotalMenu, setPrecioTotalMenu] = useState(0);
-    const [menu, setMenu] = useState([]);
+const Main = ({ navigation }) => {
+  const [menu, setMenu] = useState([]);
 
-    const agregarAlMenu = (plato) => {
-        let vegano = 0;
-        let noVegano = 0;
-        if(menu.length == 4){
-            return "El menu esta al maximo de platos(4)";
-        }else{
-            for(let i = 0; i < menu.length; i++){
-                menu[i].vegan ? vegano++ : noVegano++;
-            }
+  const handleTogglePlato = (plato) => {
+    if (menu.some(item => item.id === plato.id)) {
+      eliminarDelMenu(plato.id);
+      return "Success"; // Mensaje para eliminar
+    } else {
+      const response = agregarAlMenu(plato);
+      return response;
+    }
+  };
 
-            if(plato.vegan && vegano >= 2 || !plato.vegan && noVegano >= 2){
-                return "El menu puede tener como maximo dos veganos y como maximo dos no veganos";
-            }
-            else{
-                setMenu(...prev, plato);
-            }
-        }
+  const agregarAlMenu = (plato) => {
+    if (menu.length === 4) {
+      Alert.alert("El menú está al máximo de platos (4)");
+      return;
     }
 
-    useEffect(() => {
-        menu ? setPromedioHealth(calcularPromedio(menu)) : setPromedioHealth(0);
-        menu ? setPrecioTotalMenu(sumarElementos(menu)) : setPrecioTotalMenu(0);
-      }, []);
+    const veganoCount = menu.filter(p => p.vegan).length;
+    const noVeganoCount = menu.filter(p => !p.vegan).length;
 
-      
-      return (
-        <View style={styles.container}>
-          <FlatList
-            data={menu}
-            renderItem={({ item }) => (
-                <Plato nombre={item.title} imagen={item.image} />
-              )}
-            keyExtractor={(item) => item.id.toString()}
+    if ((plato.vegan && veganoCount >= 2) || (!plato.vegan && noVeganoCount >= 2)) {
+      Alert.alert("El menú puede tener como máximo dos veganos y dos no veganos.");
+      return;
+    }
+
+    setMenu(prev => [...prev, { ...plato, added: true }]);
+    return "Success"; // Mensaje para agregar
+  };
+
+  const eliminarDelMenu = (id) => {
+    setMenu(prevPlatos => prevPlatos.filter(plato => plato.id !== id));
+  };
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={menu}
+        renderItem={({ item }) => (
+          <Plato 
+            plato={item} 
+            onToggleSelection={handleTogglePlato} 
+            inMenu={true} 
+            navigation={navigation}
           />
-        </View>
-      );
-}
+        )}
+        keyExtractor={(item) => item.id.toString()}
+      />
+      <Button title="Ir a Buscador" onPress={() => navigation.navigate('Buscador', { handleTogglePlato })} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-      padding: 10,
-      flex: 1,
-    },
-  });
+  container: {
+    padding: 10,
+    flex: 1,
+  },
+});
 
 export default Main;

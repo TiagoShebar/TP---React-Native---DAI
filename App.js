@@ -13,7 +13,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Main">
         <Stack.Screen name="Main" component={Main} />
         <Stack.Screen name="DetallePlato" component={DetallePlato} />
-        <Stack.Screen name="Busqueda" component={Buscador} />
+        <Stack.Screen name="Buscador" component={Buscador} />
       </Stack.Navigator>
     </NavigationContainer>
   );
