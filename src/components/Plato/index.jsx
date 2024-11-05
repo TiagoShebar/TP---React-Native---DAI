@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, Button } from 'react-native';
 
-const Plato = ({ plato, onToggleSelection, inMenu, navigation, handleTogglePlato }) => {
+const Plato = ({ plato, onToggleSelection, inMenu, navigation }) => {
   const [selected, setSelected] = useState(inMenu);
 
   const toggleSelection = () => {
@@ -17,7 +17,7 @@ const Plato = ({ plato, onToggleSelection, inMenu, navigation, handleTogglePlato
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.touchable}
-        onPress={() => navigation.navigate('DetallePlato', { plato, handleTogglePlato })} // Navigate to DetallePlato
+        onPress={() => navigation.navigate('DetallePlato', { plato, onToggleSelection })} // Navigate to DetallePlato
       >
         <Image source={{ uri: plato.image }} style={styles.image} />
         <Text style={styles.name}>{plato.title}</Text>

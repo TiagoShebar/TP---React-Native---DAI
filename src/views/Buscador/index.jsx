@@ -2,27 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, FlatList, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import Plato from '../../components/Plato';
 import axios from 'axios';
+import { API_KEY, BASE_URL } from '@env';
 
-const API_KEY = '3575338cab9b49f4a034d52aa4776226';
-const BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch';
-
-const Buscador = ({ navigation, handleTogglePlato }) => {
+const Buscador = ({ route, navigation }) => {
   const [query, setQuery] = useState('');
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { handleTogglePlato } = route.params;
 
   const searchRecipes = async () => {
     if (query.length < 2) return; // Solo buscar si la longitud del query es suficiente
 
     setLoading(true);
     try {
-      const response = await axios.get(BASE_URL, {
+      const urlFinal = `${BASE_URL}/complexSearch`;
+      const response = await axios.get(urlFinal, {
         params: {
           apiKey: API_KEY,
           query: query,
         },
       });
-      console.log(response.data.results);
+      console.log(response.data.results)
       setRecipes(response.data.results);
     } catch (error) {
       console.error('Error fetching recipes:', error);
