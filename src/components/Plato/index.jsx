@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, Button } from 'react-native';
 
 const Plato = ({ plato, onToggleSelection, inMenu, navigation }) => {
   const [selected, setSelected] = useState(inMenu);
 
-  const toggleSelection = () => {
-    const response = onToggleSelection(plato);
+  useEffect(() => {
+    setSelected(inMenu);
+  }, [inMenu]);
+
+  const toggleSelection = async () => {
+    const response = await onToggleSelection(plato);
     if (response === "Success") {
       setSelected(!selected);
     } else {
-      Alert.alert("Error", response); // Show error message
+      Alert.alert("Error", response);
     }
   };
 
@@ -17,7 +21,7 @@ const Plato = ({ plato, onToggleSelection, inMenu, navigation }) => {
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.touchable}
-        onPress={() => navigation.navigate('DetallePlato', { plato, onToggleSelection })} // Navigate to DetallePlato
+        onPress={() => navigation.navigate('DetallePlato', { plato, onToggleSelection })}
       >
         <Image source={{ uri: plato.image }} style={styles.image} />
         <Text style={styles.name}>{plato.title}</Text>

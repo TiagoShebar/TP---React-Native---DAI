@@ -1,34 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Button, StyleSheet, ScrollView } from 'react-native';
-import { getInfoById } from '../../utils/getInfoById';
+import { useMenu } from '../../MenuContext';
 
 const DetallePlato = ({ route, navigation }) => {
-  const { plato, onToggleSelection } = route.params; // Obteniendo los parámetros pasados
-  console.log(plato)
+  let { plato } = route.params;
   const { id, title, image } = plato;
-  const [info, setInfo] = useState(null);
+  const { handleTogglePlato, getInfoById, inMenu } = useMenu();
+  const [selected, setSelected] = useState(false);
+  const [plato2, setPlato2] = useState(plato);
 
   useEffect(() => {
-    // Declaramos la función asincrónica dentro de useEffect
-    const getInfo = async () => {
+    const fetchInfo = async () => {
       try {
-        const data = await getInfoById(id);
-        setInfo(data);  // Actualizamos el estado con la data obtenida
+        const platoInfo = await getInfoById(id);
+        setPlato2(platoInfo);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error al obtener la información del plato:", error);
       }
     };
 
-    getInfo(); // Llamamos a la función asincrónica
-  }, []); 
+    fetchInfo();
+
+    setSelected(inMenu(id));  
+  }, [id])
+
+  const handlePress = () => {
+    handleTogglePlato(plato2);
+    setSelected(!selected);
+  };
 
   return (
     <ScrollView style={styles.container}>
       <Image source={{ uri: image }} style={styles.image} />
       <Text style={styles.name}>{title}</Text>
-      {info.vegan && <Text style={styles.vegano}>Este plato es vegano</Text>}
-      <Text style={styles.healthScore}>Puntuación de salud: {info.healthScore}</Text>
-      <Button title="Agregar al Menú" onPress={() => onToggleSelection(plato)} color="#3498db" />
+      <Text>Es vegano: {plato2.vegan ? "Sí" : "No"}</Text>
+      <Text>Healthscore: {plato2.healthScore}</Text>
+      <Button title={selected ? 'Eliminar del menu' : 'Agregar al menu'} onPress={handlePress} color={selected ? 'red' : 'green'} />
     </ScrollView>
   );
 };
@@ -51,18 +58,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  vegano: {
-    fontSize: 16,
-    color: '#2ecc71',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  healthScore: {
-    fontSize: 16,
-    color: '#e67e22',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
 });
 
 export default DetallePlato;
+

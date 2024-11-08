@@ -1,97 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Button } from 'react-native';
+import { StyleSheet, View, FlatList, Button, Alert } from 'react-native';
 import Plato from '../../components/Plato';
-import { getInfoById } from '../../utils/getInfoById';
+import { useMenu } from '../../MenuContext.js';
 
 const Main = ({ navigation }) => {
-  const [menu, setMenu] = useState([]);
-  const [prevMenu, setPrevMenu] = useState([]);
-
-  const handleTogglePlato = (plato) => {
-    if (menu.some(item => item.id === plato.id)) {
-      eliminarDelMenu(plato.id);
-      return "Success"; // Mensaje para eliminar
-    } else {
-      const response = agregarAlMenu(plato);
-      return response;
-    }
-  };
-
-  const agregarAlMenu = (plato) => {
-    if (menu.length === 4) {
-      Alert.alert("El menú está al máximo de platos (4)");
-      return;
-    }
-
-    const veganoCount = menu.filter(p => p.vegan).length;
-    const noVeganoCount = menu.filter(p => !p.vegan).length;
-
-    if ((plato.vegan && veganoCount >= 2) || (!plato.vegan && noVeganoCount >= 2)) {
-      Alert.alert("El menú puede tener como máximo dos veganos y dos no veganos.");
-      return;
-    }
-
-    setMenu(prev => [...prev, { ...plato, added: true }]);
-    return "Success"; // Mensaje para agregar
-  };
-
-  const eliminarDelMenu = (id) => {
-    setMenu(prevPlatos => prevPlatos.filter(plato => plato.id !== id));
-  };
+  const { menu, setMenu, handleTogglePlato, getInfoById } = useMenu();
+  const [promedioHealthScore, setPromedioHealthScore] = useState(0);
+  const [precioTotal, setPrecioTotal] = useState(0);
+  const [previousMenu, setPreviousMenu] = useState(...menu);
 
   useEffect(() => {
-    const updateMenuAsync = async () => {
-      // Verificamos que 'menu' no esté vacío
-      if (!menu || menu.length === 0) return;
+    const nuevosElementos = menu.filter(element => 
+      !previousMenu.some(prevElement => prevElement.id === element.id)
+    );
 
-      // Usamos Promise.all para esperar a todas las promesas de la actualización del menú
-      const updatedMenu = await Promise.all(menu.map(async (plato, index) => {
-        // Verificar si el plato no está en prevMenu
-        if (!prevMenu.some(prevPlato => prevPlato.id === plato.id)) {
-          try {
-            // Obtener la información del plato de forma asincrónica
-            const data = await getInfoById(plato.id);
-            // Retornar el plato actualizado
-            return { ...plato, ...data };
-          } catch (error) {
-            console.error("Error fetching recipe:", error);
-            return plato; // Si hay un error, devolvemos el plato sin modificar
-          }
-        }
-        return plato; // Si el plato ya está en prevMenu, devolvemos el plato sin modificar
-      }));
+    
+      console.log(nuevosElementos);
+    nuevosElementos.forEach(async (element) => {
+      const plato = await getInfoById(element.id);
 
-      // Actualizamos 'menu' después de que todas las promesas se resuelvan
-      setMenu(updatedMenu);
-    };
+      const menuActualizado = menu.map(item => 
+        item.id === plato.id ? plato : item
+      );
 
-    updateMenuAsync();
+      setMenu(menuActualizado);
+    }); 
 
-    // Actualizamos 'prevMenu' después de que se actualice 'menu'
-    setPrevMenu(menu);
-  }, [menu]); // Dependemos de 'menu' y 'prevMenu' para que el useEffect se dispare
+    
+    setPromedioHealthScore(calcularPromedio());
 
-  // Establecemos 'prevMenu' cuando el componente se monta o se actualiza el menú
-  useEffect(() => {
-    setPrevMenu(menu);
-  }, [menu, prevMenu]);
+    setPrecioTotal(calcularTotal());
+
+    setPreviousMenu(menu);
+  }, [menu]);
+
+  const calcularPromedio = () => {
+    if (menu.length === 0) return 0;
+    const totalHealthScore = menu.reduce((sum, item) => sum + item.healthScore, 0);
+    return totalHealthScore / menu.length;
+  } 
+
+  const calcularTotal = () => {
+    const total = menu.reduce((sum, item) => {
+      const precio = parseFloat(item.pricePerServing) || 0;
+      return sum + precio;
+    }, 0);
+  
+    return parseFloat(total.toFixed(2));
+  }
+  
 
   return (
     <View style={styles.container}>
       <FlatList
         data={menu}
         renderItem={({ item }) => (
-          <Plato 
-            plato={item} 
-            onToggleSelection={handleTogglePlato} 
-            inMenu={true} 
+          <Plato
+            plato={item}
+            onToggleSelection={handleTogglePlato}
+            inMenu={true}
             navigation={navigation}
           />
         )}
         keyExtractor={(item) => item.id.toString()}
       />
-      <Button title="Ir a Buscador" onPress={() => navigation.navigate('Buscador', { handleTogglePlato })} />
-      <View></View>
+      <View>Promedio HealthScore: {promedioHealthScore}</View>
+      <View>Precio total del menu: {precioTotal}</View>
+      <Button
+        title="Ir a Buscador"
+        onPress={() => navigation.navigate('Buscador')}
+      />
     </View>
   );
 };
@@ -104,3 +82,4 @@ const styles = StyleSheet.create({
 });
 
 export default Main;
+
