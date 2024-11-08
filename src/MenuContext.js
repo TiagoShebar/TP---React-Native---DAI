@@ -31,8 +31,15 @@ export const MenuProvider = ({ children }) => {
   const handleTogglePlato = async (plato) => {
     if (menu.some(item => item.id === plato.id)) {
       eliminarDelMenu(plato.id);
+      return "success"
     } else {
-      await agregarAlMenu(plato);
+      const response = await agregarAlMenu(plato);
+      if(response){
+        return "success";
+      }
+      else{
+        return "bad";
+      }
     }
   };
 
@@ -43,21 +50,27 @@ export const MenuProvider = ({ children }) => {
   const agregarAlMenu = async (plato) => {
     if (menu.length === 4) {
       alert("El menú está al máximo de platos (4)");
-      return;
+      return false;
     }
+
+    const info = await getInfoById(plato.id);
 
     const veganoCount = menu.filter(p => p.vegan).length;
     const noVeganoCount = menu.filter(p => !p.vegan).length;
 
-    if ((plato.vegan && veganoCount >= 2) || (!plato.vegan && noVeganoCount >= 2)) {
+    if ((info.vegan && veganoCount >= 2) || (!info.vegan && noVeganoCount >= 2)) {
       alert("El menú puede tener como máximo dos veganos y dos no veganos.");
-      return;
+      return false;
     }
 
-    const info = await getInfoById(plato.id);
     if (info) {
       setMenu(prev => [...prev, { ...plato, ...info }]);
+      return true;
+    }else {
+      setMenu(prev => [...prev, plato]);
     }
+
+    
   };
 
   const eliminarDelMenu = (id) => {

@@ -25,8 +25,11 @@ const DetallePlato = ({ route, navigation }) => {
   }, [id])
 
   const handlePress = () => {
-    handleTogglePlato(plato2);
-    setSelected(!selected);
+    const response = handleTogglePlato(plato2);
+    if(response === "success"){
+      setSelected(!selected);
+    }
+    
   };
 
   return (
