@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList, Button, Alert } from 'react-native';
+import { StyleSheet, View, FlatList, Button, Alert, Text } from 'react-native';
 import Plato from '../../components/Plato';
 import { useMenu } from '../../MenuContext.js';
 
@@ -64,8 +64,8 @@ const Main = ({ navigation }) => {
         )}
         keyExtractor={(item) => item.id.toString()}
       />
-      <View>Promedio HealthScore: {promedioHealthScore}</View>
-      <View>Precio total del menu: {precioTotal}</View>
+      <Text>Promedio HealthScore: {promedioHealthScore}</Text>
+      <Text>Precio total del menu: {precioTotal}</Text>
       <Button
         title="Ir a Buscador"
         onPress={() => navigation.navigate('Buscador')}
