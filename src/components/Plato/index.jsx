@@ -10,11 +10,7 @@ const Plato = ({ plato, onToggleSelection, inMenu, navigation }) => {
 
   const toggleSelection = async () => {
     const response = await onToggleSelection(plato);
-    if (response === "Success") {
-      setSelected(!selected);
-    } else {
-      Alert.alert("Error", response);
-    }
+    setSelected(!selected);
   };
 
   return (

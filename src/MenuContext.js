@@ -57,8 +57,6 @@ export const MenuProvider = ({ children }) => {
     const info = await getInfoById(plato.id);
     if (info) {
       setMenu(prev => [...prev, { ...plato, ...info }]);
-    } else {
-      setMenu(prev => [...prev, plato]);
     }
   };
 

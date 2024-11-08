@@ -7,14 +7,12 @@ const Main = ({ navigation }) => {
   const { menu, setMenu, handleTogglePlato, getInfoById } = useMenu();
   const [promedioHealthScore, setPromedioHealthScore] = useState(0);
   const [precioTotal, setPrecioTotal] = useState(0);
-  const [previousMenu, setPreviousMenu] = useState(...menu);
+  const [previousMenu, setPreviousMenu] = useState([]);
 
   useEffect(() => {
     const nuevosElementos = menu.filter(element => 
       !previousMenu.some(prevElement => prevElement.id === element.id)
     );
-
-    
       console.log(nuevosElementos);
     nuevosElementos.forEach(async (element) => {
       const plato = await getInfoById(element.id);
