@@ -29,7 +29,6 @@ const DetallePlato = ({ route, navigation }) => {
     if(response === "success"){
       setSelected(!selected);
     }
-    
   };
 
   return (

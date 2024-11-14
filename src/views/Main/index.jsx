@@ -4,32 +4,14 @@ import Plato from '../../components/Plato';
 import { useMenu } from '../../MenuContext.js';
 
 const Main = ({ navigation }) => {
-  const { menu, setMenu, handleTogglePlato, getInfoById } = useMenu();
+  const { menu, setMenu, handleTogglePlato } = useMenu();
   const [promedioHealthScore, setPromedioHealthScore] = useState(0);
   const [precioTotal, setPrecioTotal] = useState(0);
   const [previousMenu, setPreviousMenu] = useState([]);
 
   useEffect(() => {
-    const nuevosElementos = menu.filter(element => 
-      !previousMenu.some(prevElement => prevElement.id === element.id)
-    );
-      console.log(nuevosElementos);
-    nuevosElementos.forEach(async (element) => {
-      const plato = await getInfoById(element.id);
-
-      const menuActualizado = menu.map(item => 
-        item.id === plato.id ? plato : item
-      );
-
-      setMenu(menuActualizado);
-    }); 
-
-    
     setPromedioHealthScore(calcularPromedio());
-
     setPrecioTotal(calcularTotal());
-
-    setPreviousMenu(menu);
   }, [menu]);
 
   const calcularPromedio = () => {
@@ -47,7 +29,6 @@ const Main = ({ navigation }) => {
     return parseFloat(total.toFixed(2));
   }
   
-
   return (
     <View style={styles.container}>
       <FlatList
